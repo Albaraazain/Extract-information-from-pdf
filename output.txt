@@ -1,0 +1,134 @@
+Text Block Bounding Box: (36.712799072265625, 32.60251998901367, 402.9284973144531, 46.401851654052734)
+SEC. 6.3
+CONGESTION CONTROL
+531
+
+Text Block Bounding Box: (36.71353530883789, 56.53892135620117, 231.17648315429688, 70.3382568359375)
+6.3.1 Desirable Bandwidth Allocation
+
+Text Block Bounding Box: (36.71121597290039, 83.0106201171875, 402.92852783203125, 195.7913818359375)
+Before we describe how to regulate traffic, we must understand what we are
+trying to achieve by running a congestion control algorithm. That is, we must
+specify the state in which a good congestion control algorithm will operate the
+network. The goal is more than to simply avoid congestion. It is to find a good al-
+location of bandwidth to the transport entities that are using the network. A good
+allocation will deliver good performance because it uses all the available band-
+width but avoids congestion, it will be fair across competing transport entities, and
+it will quickly track changes in traffic demands. We will make each of these cri-
+teria more precise in turn.
+
+Text Block Bounding Box: (36.71121597290039, 208.27516174316406, 137.56231689453125, 220.92462158203125)
+Efficiency and Power
+
+Text Block Bounding Box: (36.7089729309082, 233.8143310546875, 402.90118408203125, 334.0280456542969)
+An efficient allocation of bandwidth across transport entities will use all of
+the network capacity that is available. However, it is not quite right to think that if
+there is a 100-Mbps link, five transport entities should get 20 Mbps each. They
+should usually get less than 20 Mbps for good performance. The reason is that the
+traffic is often bursty. Recall that in Sec. 5.3 we described the  goodput  (or rate of
+useful packets arriving at the receiver) as a function of the offered load. This
+curve and a matching curve for the delay as a function of the offered load are
+given in Fig. 6-19.
+
+Text Block Bounding Box: (109.88849639892578, 351.8809509277344, 140.926025390625, 361.10443115234375)
+Capacity
+
+Text Block Bounding Box: (147.42156982421875, 457.77398681640625, 157.17166137695312, 466.9974670410156)
+(a)
+
+Text Block Bounding Box: (105.51292419433594, 444.1828918457031, 199.08033752441406, 453.4063720703125)
+Offered load (packets/sec)
+
+Text Block Bounding Box: (189.61346435546875, 402.73382568359375, 229.97027587890625, 420.9334716796875)
+Congestion
+collapse
+
+Text Block Bounding Box: (265.64599609375, 444.1829528808594, 359.21356201171875, 453.40643310546875)
+Offered load (packets/sec)
+
+Text Block Bounding Box: (72.74613189697266, 354.9448547363281, 81.96961975097656, 435.2117004394531)
+Goodput (packets/sec)
+
+Text Block Bounding Box: (203.6466827392578, 378.5731506347656, 236.4635009765625, 396.77276611328125)
+Desired
+response
+
+Text Block Bounding Box: (246.83203125, 366.2587585449219, 256.0555419921875, 423.897705078125)
+Delay (seconds)
+
+Text Block Bounding Box: (307.5548095703125, 457.7738342285156, 317.304931640625, 466.997314453125)
+(b)
+
+Text Block Bounding Box: (272.9691162109375, 360.79791259765625, 311.5546569824219, 378.9975280761719)
+Onset of
+congestion
+
+Text Block Bounding Box: (93.18789672851562, 480.6181640625, 346.2424011230469, 490.9677429199219)
+Figure 6-19.  (a) Goodput and (b) delay as a function of offered load.
+
+Text Block Bounding Box: (36.71274185180664, 510.27642822265625, 402.8389892578125, 597.9229736328125)
+As the load increases in Fig. 6-19(a) goodput initially increases at the same
+rate, but as the load approaches the capacity, goodput rises more gradually. This
+falloff is because bursts of traffic can occasionally mount up and cause some
+losses at buffers inside the network. If the transport protocol is poorly designed
+and retransmits packets that have been delayed but not lost, the network can enter
+congestion collapse. In this state, senders are furiously sending packets, but in-
+creasingly little useful work is being accomplished.
+
+Text Block Bounding Box: (36.712799072265625, 32.60251998901367, 402.9281005859375, 46.401851654052734)
+532
+THE TRANSPORT LAYER
+CHAP. 6
+
+Text Block Bounding Box: (36.712345123291016, 57.87744140625, 402.9207763671875, 195.79248046875)
+The corresponding delay is given in Fig. 6-19(b) Initially the delay is fixed,
+representing the propagation delay across the network. As the load approaches the
+capacity, the delay rises, slowly at first and then much more rapidly. This is again
+because of bursts of traffic that tend to mound up at high load. The delay cannot
+really go to infinity, except in a model in which the routers have infinite buffers.
+Instead, packets will be lost after experiencing the maximum buffering delay.
+For both goodput and delay, performance begins to degrade at the onset of
+congestion. Intuitively, we will obtain the best performance from the network if
+we allocate bandwidth up until the delay starts to climb rapidly. This point is be-
+low the capacity. To identify it, Kleinrock (1979) proposed the metric of  power ,
+where
+
+Text Block Bounding Box: (184.944580078125, 201.16822814941406, 251.5938720703125, 227.99647521972656)
+power  =  delay
+load
+
+Text Block Bounding Box: (36.712799072265625, 234.70794677734375, 402.8731384277344, 284.6529846191406)
+Power will initially rise with offered load, as delay remains small and roughly
+constant, but will reach a maximum and fall as delay grows rapidly. The load with
+the highest power represents an efficient load for the transport entity to place on
+the network.
+
+Text Block Bounding Box: (36.71280288696289, 297.13677978515625, 124.01483154296875, 309.7862243652344)
+Max-Min Fairness
+
+Text Block Bounding Box: (36.711734771728516, 322.6759338378906, 402.8982238769531, 598.8299560546875)
+In the preceding discussion, we did not talk about how to divide bandwidth
+between different transport senders. This sounds like a simple question to
+answer—give all the senders an equal fraction of the bandwidth—but it involves
+several considerations.
+Perhaps the first consideration is to ask what this problem has to do with con-
+gestion control. After all, if the network gives a sender some amount of bandwidth
+to use, the sender should just use that much bandwidth. However, it is often the
+case that networks do not have a strict bandwidth reservation for each flow or
+connection. They may for some flows if quality of service is supported, but many
+connections will seek to use whatever bandwidth is available or be lumped toget-
+her by the network under a common allocation. For example, IETF’s differentiat-
+ed services separates traffic into two classes and connections compete for band-
+width within each class. IP routers often have all connections competing for the
+same bandwidth. In this situation, it is the congestion control mechanism that is
+allocating bandwidth to the competing connections.
+A second consideration is what a fair portion means for flows in a network. It
+is simple enough if  N  flows use a single link, in which case they can all have 1 /N
+of the bandwidth (although efficiency will dictate that they use slightly less if the
+traffic is bursty). But what happens if the flows have different, but overlapping,
+network paths? For example, one flow may cross three links, and the other flows
+may cross one link. The three-link flow consumes more network resources. It
+might be fairer in some sense to give it less bandwidth than the one-link flows. It
+
+
+Process finished with exit code 0
